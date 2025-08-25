@@ -1,0 +1,10 @@
+{
+  "name": "Beautiful Window",
+  "description": "Create and manage draggable beautiful windows with multiple effects and grouping features",
+  "tags": ["ui", "windows", "gui", "interface", "popup"],
+  "authors": ["Xomersdp"],
+  "version": "1.0.0",
+  "dynamicEnable": true,
+  "dynamicDisable": true,
+  "unsandboxed": true
+}
