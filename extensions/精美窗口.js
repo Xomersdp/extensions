@@ -311,6 +311,20 @@
       }
     }
     
+    // 新增功能：关闭所有窗口
+    closeAllWindows() {
+      // 遍历所有窗口并关闭
+      this.windows.forEach((windowData, id) => {
+        windowData.element.remove();
+      });
+      
+      // 清空窗口映射
+      this.windows.clear();
+      
+      // 重置ID计数器
+      this.nextId = 1;
+    }
+    
     minimizeWindow(id) {
       const windowData = this.windows.get(id);
       if (!windowData || windowData.isMinimized) return;
@@ -774,7 +788,11 @@
         template.border.split(' ')[2] || '#4a86e8', 
         template.border.split(' ')[1] || 'solid'
       );
-      windowData.element.style.borderRadius = template.borderRadius;
+      
+      const windowData = this.windows.get(id);
+      if (windowData) {
+        windowData.element.style.borderRadius = template.borderRadius;
+      }
       
       return id;
     }
@@ -998,6 +1016,12 @@
               }
             }
           },
+          // 新增：关闭所有窗口积木块
+          {
+            opcode: 'closeAllWindows',
+            blockType: Scratch.BlockType.COMMAND,
+            text: '关闭所有窗口'
+          },
           {
             opcode: 'minimizeWindow',
             blockType: Scratch.BlockType.COMMAND,
@@ -1169,7 +1193,7 @@
           {
             opcode: 'shakeWindow',
             blockType: Scratch.BlockType.COMMAND,
-            text: '震动窗口 [id] 强度 [intensity] 持续时间 [duration] 毫秒',
+            text: '摇晃窗口 [id] 强度 [intensity] 持续时间 [duration] 毫秒',
             arguments: {
               id: {
                 type: Scratch.ArgumentType.STRING,
@@ -1187,7 +1211,7 @@
           },
           {
             opcode: 'createGroup',
-            blockType: Scratch.BlockType.REPORTER,
+            blockType: Scratch.BlockType.COMMAND,
             text: '创建窗口组 [groupName]',
             arguments: {
               groupName: {
@@ -1214,7 +1238,7 @@
           {
             opcode: 'removeWindowFromGroup',
             blockType: Scratch.BlockType.COMMAND,
-            text: '从组 [groupName] 移除窗口 [id]',
+            text: '从组 [groupName] 中移除窗口 [id]',
             arguments: {
               id: {
                 type: Scratch.ArgumentType.STRING,
@@ -1229,7 +1253,7 @@
           {
             opcode: 'applyToGroup',
             blockType: Scratch.BlockType.COMMAND,
-            text: '对组 [groupName] 执行 [operation] 操作 值 [value]',
+            text: '对组 [groupName] 应用 [operation] 操作 值 [value]',
             arguments: {
               groupName: {
                 type: Scratch.ArgumentType.STRING,
@@ -1303,7 +1327,7 @@
           },
           {
             opcode: 'createWindowFromTemplate',
-            blockType: Scratch.BlockType.REPORTER,
+            blockType: Scratch.BlockType.COMMAND,
             text: '从模板 [templateName] 创建窗口 标题 [title]',
             arguments: {
               templateName: {
@@ -1319,7 +1343,7 @@
           {
             opcode: 'getAllWindowIds',
             blockType: Scratch.BlockType.REPORTER,
-            text: '获取所有窗口ID',
+            text: '获取所有窗口ID'
           },
           {
             opcode: 'windowExists',
@@ -1390,7 +1414,7 @@
           {
             opcode: 'isWindowMinimized',
             blockType: Scratch.BlockType.BOOLEAN,
-            text: '窗口 [id] 已最小化?',
+            text: '窗口 [id] 是否最小化?',
             arguments: {
               id: {
                 type: Scratch.ArgumentType.STRING,
@@ -1401,7 +1425,7 @@
           {
             opcode: 'isWindowMaximized',
             blockType: Scratch.BlockType.BOOLEAN,
-            text: '窗口 [id] 已最大化?',
+            text: '窗口 [id] 是否最大化?',
             arguments: {
               id: {
                 type: Scratch.ArgumentType.STRING,
@@ -1422,32 +1446,76 @@
           }
         ],
         menus: {
+          cursorStyles: {
+            acceptReporters: true,
+            items: [
+              'default',
+              'pointer',
+              'text',
+              'wait',
+              'crosshair',
+              'help',
+              'move',
+              'not-allowed',
+              'grab'
+            ]
+          },
           effects: {
             acceptReporters: true,
-            items: ['透明度', '模糊', '阴影', '圆角', '旋转', '缩放']
+            items: [
+              '透明度',
+              '模糊',
+              '阴影',
+              '圆角',
+              '旋转',
+              '缩放'
+            ]
           },
           borderStyles: {
             acceptReporters: true,
-            items: ['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']
-          },
-          cursorStyles: {
-            acceptReporters: true,
-            items: ['default', 'pointer', 'move', 'text', 'wait', 'help', 'crosshair', 'not-allowed', 'grab']
+            items: [
+              'solid',
+              'dashed',
+              'dotted',
+              'double',
+              'groove',
+              'ridge',
+              'inset',
+              'outset'
+            ]
           },
           groupOperations: {
             acceptReporters: true,
-            items: ['显示', '隐藏', '置顶', '置底', '透明度']
+            items: [
+              '显示',
+              '隐藏',
+              '置顶',
+              '置底',
+              '透明度'
+            ]
           },
           alignmentOptions: {
             acceptReporters: true,
-            items: ['左对齐', '右对齐', '顶对齐', '底对齐', '水平居中', '垂直居中']
+            items: [
+              '左对齐',
+              '右对齐',
+              '顶对齐',
+              '底对齐',
+              '水平居中',
+              '垂直居中'
+            ]
           }
         }
       };
     }
     
     createWindow(args) {
-      windowManager.createWindow(args.title, args.width, args.height);
+      const id = windowManager.createWindow(
+        args.title,
+        Math.max(100, args.width),
+        Math.max(100, args.height)
+      );
+      return id;
     }
     
     setWindowTitle(args) {
@@ -1463,7 +1531,11 @@
     }
     
     setWindowSize(args) {
-      windowManager.setWindowSize(args.id, args.width, args.height);
+      windowManager.setWindowSize(
+        args.id,
+        Math.max(100, args.width),
+        Math.max(100, args.height)
+      );
     }
     
     setWindowPosition(args) {
@@ -1484,6 +1556,11 @@
     
     closeWindow(args) {
       windowManager.closeWindow(args.id);
+    }
+    
+    // 新增：关闭所有窗口方法
+    closeAllWindows() {
+      windowManager.closeAllWindows();
     }
     
     minimizeWindow(args) {
@@ -1527,15 +1604,19 @@
     }
     
     fadeIn(args) {
-      windowManager.fadeIn(args.id, args.duration);
+      return windowManager.fadeIn(args.id, Math.max(0, args.duration));
     }
     
     fadeOut(args) {
-      windowManager.fadeOut(args.id, args.duration);
+      return windowManager.fadeOut(args.id, Math.max(0, args.duration));
     }
     
     shakeWindow(args) {
-      windowManager.shakeWindow(args.id, args.intensity, args.duration);
+      return windowManager.shakeWindow(
+        args.id,
+        Math.max(1, args.intensity),
+        Math.max(100, args.duration)
+      );
     }
     
     createGroup(args) {
@@ -1571,11 +1652,13 @@
     }
     
     createWindowFromTemplate(args) {
-      return windowManager.createWindowFromTemplate(args.templateName, args.title);
+      const id = windowManager.createWindowFromTemplate(args.templateName, args.title);
+      return id || '';
     }
     
     getAllWindowIds() {
-      return windowManager.getAllWindowIds().join(',');
+      const ids = windowManager.getAllWindowIds();
+      return ids.join(',');
     }
     
     windowExists(args) {
@@ -1615,6 +1698,5 @@
     }
   }
   
-  // 注册扩展
   Scratch.extensions.register(new BeautifulWindowExtension());
 })(Scratch);
