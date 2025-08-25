@@ -1,10 +1,24 @@
 {
-  "name": "精美窗口",
-  "description": "创建和管理可拖动的精美窗口，支持多种特效、分组管理和模板功能",
-  "tags": ["ui", "windows", "gui", "interface", "popup"],
-  "authors": ["你的名字"],
+  "name": "BeautifulWindow",
+  "description": "Create and manage beautiful draggable windows with multiple visual effects, grouping, and template features",
+  "tags": ["ui", "windows", "gui", "interface", "popup", "animation"],
+  "authors": ["Xomersdp"],
   "version": "1.0.0",
   "dynamicEnable": true,
   "dynamicDisable": true,
-  "unsandboxed": true
+  "unsandboxed": true,
+  "features": [
+    "Draggable windows",
+    "Minimize/maximize/close",
+    "Content and background color settings",
+    "Border customization",
+    "Visual effects (opacity, blur, shadow)",
+    "Fade animations",
+    "Shake effects",
+    "Window grouping",
+    "State saving and restoration",
+    "Window templates",
+    "Alignment tools"
+  ]
 }
+EOF
